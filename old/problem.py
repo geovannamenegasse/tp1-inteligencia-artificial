@@ -96,15 +96,6 @@ class SearchUCS:
         state, 'action' is the action required to get there, and 'stepCost' is
         the incremental cost of expanding to that successor.
         """
-        # D = (state[0], state[1]+1)
-        # C = (state[0]-1, state[1])
-        # E = (state[0], state[1]-1)
-        # B = (state[0]+1, state[1])
-
-        # mD = None if(D[1] >= len(self.map[0])) else self.map[D[0]][D[1]]
-        # mC = None if(C[0] < 0) else self.map[state[0]][state[1]+1]
-        # mE = None if(E[1] < 0) else self.map[E[0]][E[1]]
-        # mB = None if(B[0] >= len(self.map)) else self.map[B[0]][B[1]]
 
         successors = []
 
@@ -113,19 +104,19 @@ class SearchUCS:
      
         if(linha != 0):
             if(self.map[linha-1][coluna][0] != '@'):
-                successors.append(((coluna, linha-1), 'C', cost))
+                successors.append(((coluna, linha-1), 'C', self.map[state[1]][state[0]][1]))
 
         if(linha != len(self.map) - 1):
             if(self.map[linha+1][coluna][0] != '@'):
-                successors.append(((coluna, linha+1), 'B', cost))
+                successors.append(((coluna, linha+1), 'B', self.map[state[1]][state[0]][1]))
         
         if(coluna != 0):
             if(self.map[linha][coluna-1][0] != '@'):
-                successors.append(((coluna-1, linha), 'E', cost))
+                successors.append(((coluna-1, linha), 'E', self.map[state[1]][state[0]][1]))
 
         if(coluna != len(self.map[0]) - 1):
             if(self.map[linha][coluna+1][0] != '@'):
-                successors.append(((coluna+1, linha), 'D', cost))
+                successors.append(((coluna+1, linha), 'D', self.map[state[1]][state[0]][1]))
         
 
         return successors
