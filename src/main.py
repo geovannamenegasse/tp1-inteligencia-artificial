@@ -1,9 +1,13 @@
+import time
+start_time = time.time()
+
 import sys
 
 from bfs import BreadthFirstSearch
 from ucs import UniformCostSearch
 from greedy import GreedySearch
 from astar import AStarSearch
+from ids import IterativeDeepeningSearch
 
 ################################################################
 
@@ -35,35 +39,35 @@ for i in range(h):
     tuplas.append(linha)
 
 arquivo.close()
-problem = None
-path = []
+search_problem = None
+caminho = []
 
 if metodo == "BFS":
-    problem = BreadthFirstSearch(pi, pf, tuplas)
-    path = problem.breadth_first_search()
+    search_problem = BreadthFirstSearch(pi, pf, tuplas)
+    caminho = search_problem.breadth_first_search()
 
 if metodo == "UCS":
-    problem = UniformCostSearch(pi, pf, tuplas)
-    path = problem.uniform_cost_search()
+    search_problem = UniformCostSearch(pi, pf, tuplas)
+    caminho = search_problem.uniform_cost_search()
 
 if metodo == "Greedy":
-    problem = GreedySearch(pi, pf, tuplas)
-    path = problem.greedy_search()
+    search_problem = GreedySearch(pi, pf, tuplas)
+    caminho = search_problem.greedy_search()
 
 if metodo == "Astar":
-    problem = AStarSearch(pi, pf, tuplas)
-    path = problem.a_star_search()
+    search_problem = AStarSearch(pi, pf, tuplas)
+    caminho = search_problem.a_star_search()
 
 if metodo == "IDS":
-    print("IDS")
-
+    search_problem = IterativeDeepeningSearch(pi, pf, tuplas)
+    caminho = search_problem.iterative_deepening_search()
 
 # print(path)
 
-cost = 0
-path_inds = []
+custo_total = 0
+indices_caminho = []
 
-for direction in path:
+for direction in caminho:
     if direction == 'D':
         ci += 1
     if direction == 'C':
@@ -72,10 +76,15 @@ for direction in path:
         ci -= 1
     if direction == 'B':
         li += 1
-    path_inds.append((ci,li))
-    cost += problem.map[li][ci][1]
+    indices_caminho.append((ci,li))
+    custo_total += search_problem.mapa[li][ci][1]
 
-print(cost, end=" ")
+print(custo_total, end=" ")
 
-for p in path_inds:
+print(pi, end=" ")
+for p in indices_caminho:
     print(p, end=" ")
+print("\n")
+print(len(indices_caminho))
+
+print("--- %s seconds ---" % (time.time() - start_time))

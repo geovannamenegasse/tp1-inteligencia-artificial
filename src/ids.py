@@ -1,6 +1,6 @@
 import queue
 
-class BreadthFirstSearch:
+class IterativeDeepeningSearch:
 
     def __init__(self, inicial, objetivo, mapa):
         self.inicial = inicial
@@ -30,31 +30,43 @@ class BreadthFirstSearch:
         
         return vizinhos
 
-    def breadth_first_search(self):
+    def profundidade(self, estado):
+        return len(estado[1])
+
+    def depth_limited_search(self, limite):
 
         nodes_visitados = []
-        fila = queue.Queue()
-        estado = self.inicial 
+        pilha = queue.LifoQueue()
+        estado = self.inicial   
 
         if self.eh_estado_objetivo(estado):
-            return [] 
+            return []    
 
         while True:
 
-            if fila.empty():
-                estado = (self.inicial, []) 
+            if pilha.empty():
+                estado = (self.inicial, [])
             else:
-                estado = fila.get() 
+                estado = pilha.get()   
 
-                if self.eh_estado_objetivo(estado[0]): 
-                    return estado[1] 
+                if self.eh_estado_objetivo(estado[0]):
+                    return estado[1]
+
+                if limite < self.profundidade(estado):
+                    return False
 
             if estado[0] not in nodes_visitados:
-                nodes_visitados.append(estado[0])
-                vizinhos = self.get_vizinhos(estado[0]) 
-               
+                nodes_visitados.append(estado[0])      
+                vizinhos = self.get_vizinhos(estado[0])   
+
                 for vizinho in vizinhos:   
                     passos_ate_vizinho = estado[1].copy()
-                    passos_ate_vizinho.append(vizinho[1])                
-                    fila.put((vizinho[0], passos_ate_vizinho))
+                    passos_ate_vizinho.append(vizinho[1])
+                    pilha.put((vizinho[0], passos_ate_vizinho)) 
 
+    def iterative_deepening_search(self):
+        result = False
+        for i in range(2):
+            while result == False:
+                result = self.depth_limited_search(i)
+        return result

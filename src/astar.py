@@ -1,77 +1,64 @@
-import queue, copy
+import queue
 
 class AStarSearch:
 
-    def __init__(self, start, goal, tuples):
-        self.start = start
-        self.goal = goal
-        self.map = tuples
+    def __init__(self, inicial, objetivo, mapa):
+        self.inicial = inicial
+        self.objetivo = objetivo
+        self.mapa = mapa
 
-    def get_start_state(self):
-        return self.start
+    def eh_estado_objetivo(self, estado):
+        return estado == self.objetivo
 
-    def is_goal_state(self, state):
-        return state == self.goal
+    def get_vizinhos(self, estado):
+        vizinhos = []
 
-    def get_successors(self, state):
-
-        successors = []
-
-        linha = state[1]
-        coluna = state[0]
+        linha = estado[1]
+        coluna = estado[0]
      
-        if(linha != 0 and self.map[linha-1][coluna][0] != '@'):
-            successors.append(((coluna, linha-1), 'C'))
+        if(linha != 0 and self.mapa[linha-1][coluna][0] != '@'):
+            vizinhos.append((self.mapa[estado[1]][estado[0]][1],(coluna, linha-1), 'C'))
 
-        if(linha != len(self.map) - 1 and self.map[linha+1][coluna][0] != '@'):
-            successors.append(((coluna, linha+1), 'B'))
+        if(linha != len(self.mapa)-1 and self.mapa[linha+1][coluna][0] != '@'):
+            vizinhos.append((self.mapa[estado[1]][estado[0]][1],(coluna, linha+1), 'B'))
         
-        if(coluna != 0 and self.map[linha][coluna-1][0] != '@'):
-            successors.append(((coluna-1, linha), 'E'))
+        if(coluna != 0 and self.mapa[linha][coluna-1][0] != '@'):
+            vizinhos.append((self.mapa[estado[1]][estado[0]][1],(coluna-1, linha), 'E'))
 
-        if(coluna != len(self.map[0]) - 1 and self.map[linha][coluna+1][0] != '@'):
-            successors.append(((coluna+1, linha), 'D'))
+        if(coluna != len(self.mapa[0])-1 and self.mapa[linha][coluna+1][0] != '@'):
+            vizinhos.append((self.mapa[estado[1]][estado[0]][1],(coluna+1, linha), 'D'))
         
-        return successors
+        return vizinhos
 
+    def heuristica(self, estado):
+        return abs(estado[0]-self.objetivo[0])+abs(estado[1]-self.objetivo[1])
 
-    def null_heuristic(state, problem=None):
-        """
-        A heuristic function estimates the cost from the current state to the nearest
-        goal in the provided SearchProblem.  This heuristic is trivial.
-        """
-        return 0
-
-    def a_star_search(self, heuristic=null_heuristic):
-        """Search the node that has the lowest combined cost and heuristic first."""    
-
-        fila = queue.PriorityQueue()
-
-        state = self.get_start_state()
-
-        if self.is_goal_state(state):
-            return []
+    def a_star_search(self):
 
         nodes_visitados = []
+        fila = queue.PriorityQueue()
+        estado = self.inicial
+
+        if self.eh_estado_objetivo(estado):
+            return []
 
         while True:
+
             if fila.empty():
-                state = (self.get_start_state(), [], 0)
+                custo_estado_inicial = self.mapa[self.inicial[1]][self.inicial[0]][1]
+                estado = (custo_estado_inicial, self.inicial, [])
             else:
-                state = fila.get()
+                estado = fila.get()
 
-                if self.is_goal_state(state[0]):
-                    return state[1]
+                if self.eh_estado_objetivo(estado[1]):
+                    return estado[2]
 
-            if state[0] not in nodes_visitados:
-                nodes_visitados.append(state[0])
+            if estado[1] not in nodes_visitados:
+                nodes_visitados.append(estado[1])
+                vizinhos = self.get_vizinhos(estado[1])
 
-                sucessores = self.get_successors(state[0])
-
-                for sucessor in sucessores:   
-                    passos_ate_sucessor = copy.deepcopy(state[1])
-                    passos_ate_sucessor.append(sucessor[1])
-
-                    coordenada_sucessor = sucessor[0]
-
-                    fila.put((coordenada_sucessor, passos_ate_sucessor, sucessor[2] + state[2]), sucessor[2] + state[2] + heuristic(sucessor[0], self))
+                for vizinho in vizinhos:   
+                    passos_ate_vizinho = estado[2].copy()
+                    passos_ate_vizinho.append(vizinho[2])
+                    fila.put((vizinho[0] + estado[0] + self.heuristica(vizinho[1]), vizinho[1], passos_ate_vizinho))
+                    
